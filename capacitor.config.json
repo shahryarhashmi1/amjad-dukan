@@ -1,0 +1,6 @@
+{
+  "appId": "com.amjad.dukan",
+  "appName": "Amjad Dukan",
+  "webDir": "build",
+  "server": { "androidScheme": "https" }
+}
