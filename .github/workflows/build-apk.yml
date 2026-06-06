@@ -4,7 +4,7 @@ on:
     branches: [ main ]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -21,27 +21,22 @@ jobs:
         run: |
           npm install
           npm run build
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@5 @capacitor/cli@5 @capacitor/android@5
           npx cap add android
           npx cap sync android
 
-      - name: Fix gradle wrapper
-        run: |
-          cd android
-          chmod +x gradlew
-          cat gradle/wrapper/gradle-wrapper.properties
+      - name: Fix permissions
+        run: chmod +x android/gradlew
 
-      - name: Update gradle wrapper
+      - name: Fix gradle properties
         run: |
-          cd android
-          sed -i 's|gradle-.*-all.zip|gradle-8.0-all.zip|g' gradle/wrapper/gradle-wrapper.properties
-          sed -i 's|gradle-.*-bin.zip|gradle-8.0-bin.zip|g' gradle/wrapper/gradle-wrapper.properties
-          cat gradle/wrapper/gradle-wrapper.properties
+          echo "org.gradle.jvmargs=-Xmx2048m" >> android/gradle.properties
+          echo "org.gradle.daemon=false" >> android/gradle.properties
 
       - name: Build APK
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          ./gradlew assembleDebug --no-daemon
 
       - uses: actions/upload-artifact@v4
         with:
