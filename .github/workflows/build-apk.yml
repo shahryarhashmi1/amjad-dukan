@@ -10,7 +10,7 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
 
       - uses: actions/setup-node@v4
@@ -25,18 +25,23 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
-
-      - name: Clean gradle cache
+      - name: Fix gradle wrapper
         run: |
           cd android
-          ./gradlew clean
+          chmod +x gradlew
+          cat gradle/wrapper/gradle-wrapper.properties
+
+      - name: Update gradle wrapper
+        run: |
+          cd android
+          sed -i 's|gradle-.*-all.zip|gradle-8.0-all.zip|g' gradle/wrapper/gradle-wrapper.properties
+          sed -i 's|gradle-.*-bin.zip|gradle-8.0-bin.zip|g' gradle/wrapper/gradle-wrapper.properties
+          cat gradle/wrapper/gradle-wrapper.properties
 
       - name: Build APK
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon --max-workers 2
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
