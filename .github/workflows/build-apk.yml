@@ -7,13 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
+
       - name: Install and build
         run: |
           npm install
@@ -21,11 +24,20 @@ jobs:
           npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap add android
           npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Clean gradle cache
+        run: |
+          cd android
+          ./gradlew clean
+
       - name: Build APK
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon --max-workers 2
+
       - uses: actions/upload-artifact@v4
         with:
           name: amjad-dukan-apk
